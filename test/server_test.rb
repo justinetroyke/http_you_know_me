@@ -23,7 +23,7 @@ class ServerTest < Minitest::Test
  end
 
  def test_valid_HTML_response
-   server = Server.new(9292)
+   server = Server.new
 
    assert server.process_response("<pre>\nVerb: POST\nPath: /\n
      Protocol: HTTP/1.1\nHost: 127.0.0.1\nPort: 9292\nOrigin: 127.0.0.1\nAccept:
@@ -39,7 +39,7 @@ class ServerTest < Minitest::Test
  end
 
  def test_it_counts_server_hits
-  # server = Server.new
+  server = Server.new
 
   assert_equal 0, server.server_hits
   server.process_response("")

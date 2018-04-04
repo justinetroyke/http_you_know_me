@@ -9,7 +9,7 @@ require 'pry'
 class ParserTest < Minitest::Test
 
   def test_it_exists
-    parser = Parser.new
+    parser = Parser.new(lines)
 
     assert_instance_of Parser, parser
   end
@@ -17,6 +17,6 @@ class ParserTest < Minitest::Test
   def test_it_gets_verb
     parser = Parser.new
 
-    assert_equal "GET", parser.get_verb
+    assert_equal "", parser.get_verb
   end
 end
