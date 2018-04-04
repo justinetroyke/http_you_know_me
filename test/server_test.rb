@@ -3,7 +3,6 @@ SimpleCov.start
 require 'minitest/autorun'
 require 'minitest/pride'
 require './lib/server'
-require 'rubygems'
 require 'pry'
 
 class ServerTest < Minitest::Test
@@ -24,7 +23,7 @@ class ServerTest < Minitest::Test
  end
 
  def test_valid_HTML_response
-   server = Server.new
+   server = Server.new(9292)
 
    assert server.process_response("<pre>\nVerb: POST\nPath: /\n
      Protocol: HTTP/1.1\nHost: 127.0.0.1\nPort: 9292\nOrigin: 127.0.0.1\nAccept:
@@ -40,10 +39,17 @@ class ServerTest < Minitest::Test
  end
 
  def test_it_counts_server_hits
-  server = Server.new
+  # server = Server.new
 
   assert_equal 0, server.server_hits
   server.process_response("")
   assert_equal 1, server.server_hits
+ end
+
+ def test_server_starts
+   skip
+   server = Server.new
+
+   assert_equal "", server.start
  end
 end
