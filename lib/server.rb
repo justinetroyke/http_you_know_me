@@ -27,9 +27,6 @@ class Server
 
       puts "Sending response."
 
-
-
-      response = "<pre>" + ("Hello, World! (#{server_hits})\n") + "</pre>"
       output = "<html><head></head><body>#{response}</body></html>"
       headers = ["http/1.1 200 ok",
                 "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
@@ -42,6 +39,10 @@ class Server
       client.close
       puts "\nResponse complete, exiting."
     end
+  end
+
+  def response
+    "<pre>" + ("Hello, World! (#{server_hits})\n") + "</pre>"
   end
 
   def process_response(request_string)
