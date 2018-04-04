@@ -6,40 +6,41 @@ class Server
               :tcp_server,
               :client
 
-  def initialize(port)
-    @tcp_server = TCPServer.new(port)
+  def initialize
+    @tcp_server = TCPServer.new(9292)
     @server_hits = 0
-    @line = []
-    @client = 'disconnected'
   end
 
   def connect
     @client = tcp_server.accept
-    binding.pry
   end
 
   def close
-    client.close
+    @client.close
     puts "\nResponse complete, exiting."
   end
 
-  def request_lines
+  def lines
     request_lines = []
-    while line = client.gets and !line.chomp.empty?
+    while line = @client.gets and !line.chomp.empty?
       request_lines << line.chomp
-    end
-  end
-
-  def start
-    connect
-    request_lines
-    while tcp_server do
-      puts "Ready for a request"
       puts "Got this request:"
       puts request_lines.inspect
       puts "Sending response."
+    end
+  end
+
+  def parse(lines)
+    @parsed_data = Parser.new(lines)
+  end
+
+  def start
+    while tcp_server do
+      connect
+      puts "Ready for a request"
+      lines
       response
-      output = "<html><head></head><body>#{response}</body></html>"
+      process_response()
       headers = ["http/1.1 200 ok",
                 "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
                 "server: ruby",
@@ -48,12 +49,13 @@ class Server
       client.puts headers
       client.puts output
       puts ["Wrote this response:", headers, output].join("\n")
+      close
     end
-    close
   end
 
   def response
     "<pre>" + ("Hello, World! (#{server_hits})\n") + "</pre>"
+    output = "<html><head></head><body>#{response}</body></html>"
   end
 
   def process_response(request_string)
@@ -61,3 +63,6 @@ class Server
      "<html><head></head><body>#{request_string}</body></html>"
   end
 end
+
+s = Server.new
+s.start
