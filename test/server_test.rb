@@ -45,11 +45,4 @@ class ServerTest < Minitest::Test
   server.process_response("")
   assert_equal 1, server.server_hits
  end
-
- def test_server_starts
-   skip
-   server = Server.new
-
-   assert_equal "", server.start
- end
 end
