@@ -7,12 +7,14 @@ class Server
   attr_reader :server_hits,
               :tcp_server,
               :client,
-              :parsed_data
+              :parsed_data,
+              :request_lines
 
   def initialize
     @tcp_server = TCPServer.new(9292)
     @server_hits = 0
     @hello_counter = 0
+    @request_lines = []
   end
 
   def connect
@@ -21,16 +23,15 @@ class Server
   end
 
   def lines
-    request_lines = []
     while line = @client.gets and !line.chomp.empty?
-      request_lines << line.chomp
+      @request_lines << line.chomp
     end
   end
 
   def parse(lines)
-    @parsed_data = Parser.new(lines)
+    @parsed_data = Parser.new(@request_lines)
     puts "Got this request:"
-    puts request_lines.inspect
+    puts @request_lines.inspect
   end
 
   def close
@@ -41,6 +42,10 @@ class Server
     @server_hits += 1
   end
 
+  def response
+    "Hello, World! (#{@server_hits})\n#{@parsed_data.diagnostics}"
+  end
+
   def start
     loop do
       connect
@@ -48,31 +53,32 @@ class Server
       add_hit
       router
       process_response
-      close
     end
+    close
   end
 
   def router
+    response = []
     puts "Sending response."
-    @process_response = []
+    parse(lines)
     case @parsed_data
-    when @parsed_data.include?("/word_search")
+    when @parsed_data.diagnostics.include?("/word_search")
       dict = File.read('/usr/share/dict/words')
       word = @parsed_data.path.split('=')[-1]
       if dict.include?(word)
-        @process_response << "#{word} is a known word"
+        "#{word} is a known word"
       else
-        @process_response << "#{word} is not a known word"
+        "#{word} is not a known word"
       end
     when "/hello"
       @hello_counter += 1
-      @process_response << "Hello World! (#{@hello_counter})"
+      "Hello World! (#{@hello_counter})"
     when "/datetime"
-      @process_response << Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')
+      Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')
     when "/shutdown"
-      @process_response << "Total Requests: #{@counter}"
+      "Total Requests: #{@counter}"
     else
-      @process_response << @parsed_data.diagnostics
+      @parsed_data.diagnostics
     end
   end
 
@@ -85,17 +91,13 @@ class Server
   end
 
   def process_response
-    output = "<html><head></head><body>#{@response.join}</body></html>"
+    output = "<html><head></head><body>#{output}</body></html>"
     puts ["Wrote this response:", headers, output].join("\n")
     @client.puts headers
     @client.puts output
   end
 
   def output
-    "<pre>" + ("Hello, World! (#{server_hits})\n") + "</pre>"
-    @parsed_data.diagnostics
+    "<pre>" + ("Hello, World! (#{server_hits})\n#{@parsed_data.diagnostics}") + "</pre>"
   end
 end
-
-s = Server.new
-s.start
