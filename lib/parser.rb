@@ -35,4 +35,6 @@ class Parser
       line.include?("Accept")
     end.split(":")[1].lstrip
   end
+
+  
 end
