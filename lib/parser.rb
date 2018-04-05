@@ -36,5 +36,15 @@ class Parser
     end.split(":")[1].lstrip
   end
 
-  
+  def diagnostics
+    ["<pre>",
+      "Verb: #{get_verb}",
+      "Path: #{get_path}",
+      "Protocol: #{get_protocol}",
+      "Host: #{get_host}",
+      "Port: #{get_port}",
+      "Origin: #{get_host}",
+      "Accept: #{get_accept}",
+      "</pre>"].join("\n")
+  end
 end

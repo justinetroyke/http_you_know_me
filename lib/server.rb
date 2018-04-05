@@ -4,7 +4,8 @@ class Server
 
   attr_reader :server_hits,
               :tcp_server,
-              :client
+              :client,
+              :parsed_data
 
   def initialize
     @tcp_server = TCPServer.new(9292)
@@ -24,7 +25,7 @@ class Server
   end
 
   def parse(lines)
-    @parsed_data = Parser.new(lines)
+    @parsed_data = Parser.new(lines).diagnostics
     puts "Got this request:"
     puts request_lines.inspect
   end
@@ -43,23 +44,31 @@ class Server
       connect
       lines
       add_hit
-      headers = ["http/1.1 200 ok",
-                "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
-                "server: ruby",
-                "content-type: text/html; charset=iso-8859-1",
-                "content-length: #{response.length}\r\n\r\n"].join("\r\n")
-      client.puts headers
-      client.puts response
-      puts ["Wrote this response:", process_response(response)].join("\n")
+      route
+
       close
     end
   end
 
-  def response
+  def router
+    headers = ["http/1.1 200 ok",
+              "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+              "server: ruby",
+              "content-type: text/html; charset=iso-8859-1",
+              "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+    client.puts headers
+    client.puts output
+    puts ["Wrote this response:", process_response(output)].join("\n")
+  end
+  def output
     "<pre>" + ("Hello, World! (#{server_hits})\n") + "</pre>"
+    @parsed_data
   end
 
   def process_response(request_string)
      "<html><head></head><body>#{request_string}</body></html>"
   end
 end
+
+s = Server.new
+s.start

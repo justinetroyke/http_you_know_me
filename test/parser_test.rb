@@ -61,4 +61,11 @@ class ParserTest < Minitest::Test
 
     assert_equal "image/webp,image/apng,image/*,*/*;q=0.8", parser.get_accept
   end
+
+  def test_it_can_create_an_output_of_diagnostics
+    parser = Parser.new(GET_RESPONSE)
+
+    assert_equal "<pre>\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nHost: 127.0.0.1\nPort: 9292\nOrigin: 127.0.0.1\nAccept: image/webp,image/apng,image/*,*/*;q=0.8\n</pre>",
+    parser.diagnostics
+  end
 end
