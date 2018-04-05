@@ -1,4 +1,5 @@
 require 'socket'
+require 'pry'
 
 class Server
 
@@ -10,6 +11,7 @@ class Server
   def initialize
     @tcp_server = TCPServer.new(9292)
     @server_hits = 0
+    @hello_counter = 0
   end
 
   def connect
@@ -43,8 +45,8 @@ class Server
       connect
       lines
       add_hit
-      route
-
+      router
+      process_response
       close
     end
   end
@@ -52,27 +54,26 @@ class Server
   def router
     puts "Sending response."
     @process_response = []
+      binding.pry
     case @parsed_data
     when @parsed_data.include?("/word_search")
-
-
-    puts ["Wrote this response:", process_response(output)].join("\n")
-  end
-  def output
-    "<pre>" + ("Hello, World! (#{server_hits})\n") + "</pre>"
-    @parsed_data
-  end
-
-  def process_response
-
-    puts ["Wrote this response:", process_response(output)].join("\n")
-  end
-
-  def client_response(headers)
-    puts headers
-    output = "<html><head></head><body>#{@response.join}</body></html>"
-    puts output
-    puts ["Wrote this response:", headers].join("\n")
+      dict = File.read('/usr/share/dict/words')
+      word = @parsed_data.path.split('=')[-1]
+      if dict.include?(word)
+        @process_response << "#{word} is a known word"
+      else
+        @process_response << "#{word} is not a known word"
+      end
+    when "/hello"
+      @hello_counter += 1
+      @process_response << "Hello World! (#{@hello_counter})"
+    when "/datetime"
+      @process_response << Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')
+    when "/shutdown"
+      @process_response << "Total Requests: #{@counter}"
+    else
+      @process_response << @parsed_data.diagnostics
+    end
   end
 
   def headers
@@ -80,7 +81,19 @@ class Server
       "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
       "server: ruby",
       "content-type: text/html; charset=iso-8859-1",
-      "content-length: #{output.length}\r\n\r\n"].join("\r\n")]
+      "content-length: #{output.length}\r\n\r\n"].join("\r\n")
+  end
+
+  def process_response
+    output = "<html><head></head><body>#{@response.join}</body></html>"
+    puts ["Wrote this response:", headers, output].join("\n")
+    @client.puts headers
+    @client.puts output
+  end
+
+  def output
+    "<pre>" + ("Hello, World! (#{server_hits})\n") + "</pre>"
+    @parsed_data
   end
 end
 
