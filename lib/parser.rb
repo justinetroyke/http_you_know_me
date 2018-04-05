@@ -11,6 +11,16 @@ class Parser
   end
 
   def get_path
-    @get_response[0].split[1].split[0]
+    @get_response[0].split[1].chars[0]
+  end
+
+  def get_protocol
+    @get_response[0].split[2]
+  end
+
+  def get_host
+    @get_response.find do |line|
+      line.include?("Host")
+    end.split(":")[1].lstrip
   end
 end

@@ -31,4 +31,16 @@ class ParserTest < Minitest::Test
 
     assert_equal "/", parser.get_path
   end
+
+  def test_it_gets_protocol
+    parser = Parser.new(GET_RESPONSE)
+
+    assert_equal "HTTP/1.1", parser.get_protocol
+  end
+
+  def test_it_gets_host
+    parser = Parser.new(GET_RESPONSE)
+
+    assert_equal "127.0.0.1", parser.get_host
+  end
 end
