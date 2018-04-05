@@ -32,7 +32,6 @@ class Server
 
   def close
     @client.close
-    puts "\nResponse complete, exiting."
   end
 
   def add_hit
@@ -51,13 +50,12 @@ class Server
   end
 
   def router
-    headers = ["http/1.1 200 ok",
-              "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
-              "server: ruby",
-              "content-type: text/html; charset=iso-8859-1",
-              "content-length: #{output.length}\r\n\r\n"].join("\r\n")
-    client.puts headers
-    client.puts output
+    puts "Sending response."
+    @process_response = []
+    case @parsed_data
+    when @parsed_data.include?("/word_search")
+
+
     puts ["Wrote this response:", process_response(output)].join("\n")
   end
   def output
@@ -65,8 +63,24 @@ class Server
     @parsed_data
   end
 
-  def process_response(request_string)
-     "<html><head></head><body>#{request_string}</body></html>"
+  def process_response
+
+    puts ["Wrote this response:", process_response(output)].join("\n")
+  end
+
+  def client_response(headers)
+    puts headers
+    output = "<html><head></head><body>#{@response.join}</body></html>"
+    puts output
+    puts ["Wrote this response:", headers].join("\n")
+  end
+
+  def headers
+    ["http/1.1 200 ok",
+      "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+      "server: ruby",
+      "content-type: text/html; charset=iso-8859-1",
+      "content-length: #{output.length}\r\n\r\n"].join("\r\n")]
   end
 end
 
