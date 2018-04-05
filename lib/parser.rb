@@ -23,4 +23,16 @@ class Parser
       line.include?("Host")
     end.split(":")[1].lstrip
   end
+
+  def get_port
+    @get_response.find do |line|
+      line.include?("Host")
+    end.split(":")[2]
+  end
+
+  def get_accept
+    @get_response.find do |line|
+      line.include?("Accept")
+    end.split(":")[1].lstrip
+  end
 end

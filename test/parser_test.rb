@@ -43,4 +43,22 @@ class ParserTest < Minitest::Test
 
     assert_equal "127.0.0.1", parser.get_host
   end
+
+  def test_it_gets_port
+    parser = Parser.new(GET_RESPONSE)
+
+    assert_equal "9292", parser.get_port
+  end
+
+  def test_it_gets_origin
+    parser = Parser.new(GET_RESPONSE)
+
+    assert_equal "127.0.0.1", parser.get_host
+  end
+
+  def test_it_gets_accept
+    parser = Parser.new(GET_RESPONSE)
+
+    assert_equal "image/webp,image/apng,image/*,*/*;q=0.8", parser.get_accept
+  end
 end
