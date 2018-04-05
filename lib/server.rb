@@ -1,4 +1,5 @@
 require 'socket'
+require_relative 'parser'
 require 'pry'
 
 class Server
@@ -27,7 +28,7 @@ class Server
   end
 
   def parse(lines)
-    @parsed_data = Parser.new(lines).diagnostics
+    @parsed_data = Parser.new(lines)
     puts "Got this request:"
     puts request_lines.inspect
   end
@@ -54,7 +55,6 @@ class Server
   def router
     puts "Sending response."
     @process_response = []
-      binding.pry
     case @parsed_data
     when @parsed_data.include?("/word_search")
       dict = File.read('/usr/share/dict/words')
@@ -93,7 +93,7 @@ class Server
 
   def output
     "<pre>" + ("Hello, World! (#{server_hits})\n") + "</pre>"
-    @parsed_data
+    @parsed_data.diagnostics
   end
 end
 
